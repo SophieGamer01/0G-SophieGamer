@@ -542,5 +542,28 @@
         };
 
     </script>
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyDH6b4uEYTl1Gn3SltnW0svmsvbGqIns74",
+    authDomain: "g-sophiegamer.firebaseapp.com",
+    projectId: "g-sophiegamer",
+    storageBucket: "g-sophiegamer.firebasestorage.app",
+    messagingSenderId: "409547297973",
+    appId: "1:409547297973:web:d566cef63240c8cdd0dafc",
+    measurementId: "G-FJRE62DJV2"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
 </body>
 </html>
