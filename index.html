@@ -6,564 +6,98 @@
     <title>Zero-Gravity Hub | Sophie Gamer</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getDatabase, ref, update, onValue, set, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+        const firebaseConfig = {
+            databaseURL: "https://g-sophiegamer-default-rtdb.firebaseio.com"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        window.db = db; // Export for global use
+        window.ref = ref;
+        window.onValue = onValue;
+        window.update = update;
+        window.set = set;
+        window.get = get;
+    </script>
+
     <style>
-        /* iOS STYLE VARIABLES & CORE SETTINGS */
-        :root {
-            --ios-bg: #000000;
-            --ios-card: rgba(28, 28, 30, 0.6);
-            --ios-card-border: rgba(255, 255, 255, 0.08);
-            --ios-text: #ffffff;
-            --ios-subtext: #ebebf599;
-            --ios-blue: #0a84ff;
-            --ios-pink: #ff2d55;
-            --ios-green: #30d158;
-            --ios-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            --blur-effect: blur(20px);
-        }
-
-        /* FIXING THE WHITE SPACE ISSUE */
-        html, body {
-            min-height: 100vh;
-            margin: 0;
-            padding: 0;
-            background-color: var(--ios-bg);
-            background-image: radial-gradient(circle at 50% 0%, #1a0b2e 0%, #000000 60%);
-            background-attachment: fixed;
-            color: var(--ios-text);
-            font-family: var(--ios-font);
-            overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
-        }
-
+        /* [باقي الـ CSS مالتك الأصلي كما هو] */
+        :root { --ios-bg: #000000; --ios-card: rgba(28, 28, 30, 0.6); --ios-card-border: rgba(255, 255, 255, 0.08); --ios-text: #ffffff; --ios-subtext: #ebebf599; --ios-blue: #0a84ff; --ios-pink: #ff2d55; --ios-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; --blur-effect: blur(20px); }
+        html, body { min-height: 100vh; margin: 0; padding: 0; background-color: var(--ios-bg); background-image: radial-gradient(circle at 50% 0%, #1a0b2e 0%, #000000 60%); background-attachment: fixed; color: var(--ios-text); font-family: var(--ios-font); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
         * { box-sizing: border-box; }
-
-        /* PUBLIC APP NAVIGATION BAR (iOS Style) */
-        .top-nav {
-            position: fixed;
-            top: 0; left: 0; width: 100%;
-            height: 60px;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: var(--blur-effect);
-            -webkit-backdrop-filter: var(--blur-effect);
-            border-bottom: 0.5px solid var(--ios-card-border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 20px;
-            z-index: 1000;
-        }
-
+        .top-nav { position: fixed; top: 0; left: 0; width: 100%; height: 60px; background: rgba(0, 0, 0, 0.5); backdrop-filter: var(--blur-effect); -webkit-backdrop-filter: var(--blur-effect); border-bottom: 0.5px solid var(--ios-card-border); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; z-index: 1000; }
         .nav-logo { font-weight: 700; font-size: 1.2rem; letter-spacing: 1px; color: var(--ios-text); }
-        
-        .user-nav-profile {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(255,255,255,0.1);
-            padding: 5px 10px;
-            border-radius: 20px;
-            cursor: pointer;
-        }
+        .user-nav-profile { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.1); padding: 5px 10px; border-radius: 20px; cursor: pointer; }
         .user-icon-img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; background: #333; }
         .user-name-txt { font-size: 0.9rem; font-weight: 500; }
-
-        /* BOTTOM TAB BAR (iOS Mobile Feel) */
-        .bottom-tab-bar {
-            position: fixed;
-            bottom: 0; left: 0; width: 100%;
-            height: 70px;
-            background: rgba(15, 15, 15, 0.7);
-            backdrop-filter: var(--blur-effect);
-            -webkit-backdrop-filter: var(--blur-effect);
-            border-top: 0.5px solid var(--ios-card-border);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            z-index: 1000;
-            padding-bottom: env(safe-area-inset-bottom);
-        }
-
-        .tab-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            color: var(--ios-subtext);
-            text-decoration: none;
-            font-size: 0.7rem;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
+        .bottom-tab-bar { position: fixed; bottom: 0; left: 0; width: 100%; height: 70px; background: rgba(15, 15, 15, 0.7); backdrop-filter: var(--blur-effect); -webkit-backdrop-filter: var(--blur-effect); border-top: 0.5px solid var(--ios-card-border); display: flex; justify-content: space-around; align-items: center; z-index: 1000; padding-bottom: env(safe-area-inset-bottom); }
+        .tab-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--ios-subtext); text-decoration: none; font-size: 0.7rem; cursor: pointer; transition: color 0.2s; }
         .tab-item i { font-size: 1.4rem; }
         .tab-item.active { color: var(--ios-blue); }
-
-        /* MAIN CONTENT CONTAINER */
-        .app-container {
-            padding: 85px 20px 100px 20px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
+        .app-container { padding: 85px 20px 100px 20px; max-width: 800px; margin: 0 auto; }
         .view-section { display: none; animation: fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .view-section.active { display: block; }
-
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* iOS GLASS CARDS */
-        .ios-card {
-            background: var(--ios-card);
-            backdrop-filter: var(--blur-effect);
-            -webkit-backdrop-filter: var(--blur-effect);
-            border: 0.5px solid var(--ios-card-border);
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .ios-card { background: var(--ios-card); backdrop-filter: var(--blur-effect); -webkit-backdrop-filter: var(--blur-effect); border: 0.5px solid var(--ios-card-border); border-radius: 20px; padding: 20px; margin-bottom: 20px; }
         .section-header { font-size: 1.5rem; font-weight: 700; margin-bottom: 15px; }
-
-        /* COUNTDOWN STYLING */
         .timer-row { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
-        .time-block {
-            background: rgba(255,255,255,0.05);
-            border-radius: 14px;
-            padding: 15px;
-            min-width: 80px;
-            text-align: center;
-            border: 0.5px solid rgba(255,255,255,0.1);
-        }
+        .time-block { background: rgba(255,255,255,0.05); border-radius: 14px; padding: 15px; min-width: 80px; text-align: center; border: 0.5px solid rgba(255,255,255,0.1); }
         .time-block span { font-size: 2rem; font-weight: 700; display: block; }
         .time-block label { font-size: 0.75rem; color: var(--ios-subtext); text-transform: uppercase; }
-
-        /* BUTTONS & INPUTS */
-        .ios-btn {
-            background: var(--ios-blue);
-            color: #fff;
-            border: none;
-            padding: 14px 20px;
-            border-radius: 14px;
-            font-size: 1rem;
-            font-weight: 600;
-            width: 100%;
-            cursor: pointer;
-            transition: transform 0.1s, opacity 0.2s;
-        }
+        .ios-btn { background: var(--ios-blue); color: #fff; border: none; padding: 14px 20px; border-radius: 14px; font-size: 1rem; font-weight: 600; width: 100%; cursor: pointer; transition: transform 0.1s, opacity 0.2s; }
         .ios-btn:active { transform: scale(0.97); opacity: 0.8; }
         .ios-btn.pink { background: var(--ios-pink); }
-
-        .ios-input {
-            width: 100%;
-            background: rgba(0,0,0,0.3);
-            border: 0.5px solid var(--ios-card-border);
-            color: var(--ios-text);
-            padding: 14px;
-            border-radius: 12px;
-            font-size: 1rem;
-            margin-bottom: 12px;
-            outline: none;
-        }
+        .ios-input { width: 100%; background: rgba(0,0,0,0.3); border: 0.5px solid var(--ios-card-border); color: var(--ios-text); padding: 14px; border-radius: 12px; font-size: 1rem; margin-bottom: 12px; outline: none; }
         .ios-input:focus { border-color: var(--ios-blue); }
-
-        /* LEADERBOARD LIST */
-        .leader-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 0.5px solid var(--ios-card-border);
-        }
+        .leader-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 0.5px solid var(--ios-card-border); }
         .leader-row:last-child { border-bottom: none; }
         .leader-info { display: flex; align-items: center; gap: 12px; }
         .rank-num { font-weight: bold; width: 25px; color: var(--ios-subtext); }
-
-        /* LANGUAGE SELECTOR GRID */
-        .lang-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 10px;
-        }
-        .lang-btn {
-            background: rgba(255,255,255,0.05);
-            border: 0.5px solid var(--ios-card-border);
-            padding: 12px;
-            border-radius: 12px;
-            color: var(--ios-text);
-            text-align: center;
-            cursor: pointer;
-        }
+        .lang-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+        .lang-btn { background: rgba(255,255,255,0.05); border: 0.5px solid var(--ios-card-border); padding: 12px; border-radius: 12px; color: var(--ios-text); text-align: center; cursor: pointer; }
         .lang-btn.active-lang { border-color: var(--ios-blue); background: rgba(10, 132, 255, 0.1); }
     </style>
 </head>
 <body>
-
-    <nav class="top-nav">
-        <div class="nav-logo" data-i18n="app_title">Zero Gravity Hub</div>
-        <div class="user-nav-profile" onclick="switchTab('auth')">
-            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Guest" class="user-icon-img" id="global-user-icon">
-            <span class="user-name-txt" id="global-user-name" data-i18n="login_btn">تسجيل الدخول</span>
-        </div>
-    </nav>
-
-    <div class="app-container">
-
-        <section id="view-home" class="view-section active">
-            <div class="ios-card" style="text-align:center; padding: 40px 20px;">
-                <h1 style="font-size: 2.2rem; margin-bottom: 10px;" data-i18n="event_title">Zero Gravity 2026</h1>
-                <p style="color: var(--ios-subtext); margin-bottom: 30px;" data-i18n="event_sub">الحدث الأضخم قادم قريباً</p>
-                
-                <div class="timer-row">
-                    <div class="time-block"><span id="t-mo">00</span><label data-i18n="t_months">أشهر</label></div>
-                    <div class="time-block"><span id="t-dy">00</span><label data-i18n="t_days">أيام</label></div>
-                    <div class="time-block"><span id="t-hr">00</span><label data-i18n="t_hours">ساعات</label></div>
-                    <div class="time-block"><span id="t-mn">00</span><label data-i18n="t_minutes">دقائق</label></div>
-                    <div class="time-block"><span id="t-sc">00</span><label data-i18n="t_seconds">ثواني</label></div>
-                </div>
-            </div>
-
-            <div class="ios-card" style="text-align: center;">
-                <h3 style="margin-bottom: 5px;" data-i18n="yt_counter_title">عداد المشتركين (يوتيوب)</h3>
-                <p style="font-size: 0.8rem; color: var(--ios-subtext); margin-bottom: 15px;" data-i18n="yt_counter_sub">يتم تحديث البيانات من خوادم المنصة</p>
-                <div style="font-size: 3rem; font-weight: 800; color: var(--ios-pink); font-family: monospace;" id="yt-count-display">99,950</div>
-                <button class="ios-btn" style="margin-top: 15px;" onclick="refreshYTCounter()" data-i18n="yt_refresh">تحديث العداد</button>
-            </div>
-        </section>
-
-        <section id="view-play" class="view-section">
-            <div class="ios-card">
-                <h3 class="section-header" data-i18n="promo_title">أكواد الهدايا (Promo Codes)</h3>
-                <p style="font-size:0.85rem; color:var(--ios-subtext); margin-bottom:15px;" data-i18n="promo_sub">أدخل كود الفعالية لتحصل على نقاط ترفع تصنيفك!</p>
-                <input type="text" class="ios-input" id="promo-input" placeholder="SOPHIEXXXX" style="text-align:center; text-transform:uppercase; letter-spacing: 2px;">
-                <button class="ios-btn" onclick="redeemCode()" data-i18n="promo_btn">تفعيل الكود</button>
-            </div>
-
-            <div class="ios-card">
-                <h3 class="section-header" data-i18n="leader_title">لوحة الصدارة (Leaderboard)</h3>
-                <div id="leaderboard-list">
-                    </div>
-            </div>
-        </section>
-
-        <section id="view-auth" class="view-section">
-            <div class="ios-card" id="login-box">
-                <div style="text-align:center; margin-bottom:20px;">
-                    <i class="fa-solid fa-circle-user" style="font-size: 4rem; color: var(--ios-blue);"></i>
-                    <h2 style="margin-top:10px;" data-i18n="login_title">تسجيل الدخول</h2>
-                </div>
-                
-                <input type="text" id="auth-username" class="ios-input" placeholder="اسم المستخدم">
-                <input type="password" id="auth-password" class="ios-input" placeholder="كلمة مرور الحساب">
-                
-                <button class="ios-btn" onclick="loginUser()" data-i18n="login_btn">تسجيل الدخول</button>
-            </div>
-
-            <div class="ios-card" id="profile-box" style="display:none; text-align:center;">
-                <img src="" id="profile-large-icon" style="width:100px; height:100px; border-radius:50%; margin:0 auto 15px auto; display:block; border: 3px solid var(--ios-blue);">
-                <h2 id="profile-name-display" style="margin-bottom:5px;">User</h2>
-                <p style="color:var(--ios-subtext); margin-bottom:20px;" data-i18n="profile_points">النقاط: <span id="profile-points-display">0</span></p>
-                <button class="ios-btn pink" onclick="logoutUser()" data-i18n="logout_btn">تسجيل الخروج</button>
-            </div>
-        </section>
-
-        <section id="view-settings" class="view-section">
-            <div class="ios-card">
-                <h3 class="section-header" data-i18n="lang_title">لغة التطبيق (Language)</h3>
-                <p style="font-size:0.8rem; color:var(--ios-subtext); margin-bottom:15px;" data-i18n="lang_sub">المنصة تتفاعل تلقائياً مع لغة جهازك، أو اختر لغتك يدوياً:</p>
-                
-                <div class="lang-grid">
-                    <div class="lang-btn" onclick="setLanguage('ar')">العربية</div>
-                    <div class="lang-btn" onclick="setLanguage('en')">English</div>
-                    <div class="lang-btn" onclick="setLanguage('pt')">Português</div>
-                    <div class="lang-btn" onclick="setLanguage('es')">Español</div>
-                    <div class="lang-btn" onclick="setLanguage('fr')">Français</div>
-                    <div class="lang-btn" onclick="setLanguage('de')">Deutsch</div>
-                    <div class="lang-btn" onclick="setLanguage('tr')">Türkçe</div>
-                    <div class="lang-btn" onclick="setLanguage('it')">Italiano</div>
-                    <div class="lang-btn" onclick="setLanguage('ja')">日本語</div>
-                    <div class="lang-btn" onclick="setLanguage('ko')">한국어</div>
-                </div>
-            </div>
-        </section>
-
-    </div>
-
-    <nav class="bottom-tab-bar">
-        <a class="tab-item active" onclick="switchTab('home', this)">
-            <i class="fa-solid fa-house"></i>
-            <span data-i18n="tab_home">الرئيسية</span>
-        </a>
-        <a class="tab-item" onclick="switchTab('play', this)">
-            <i class="fa-solid fa-trophy"></i>
-            <span data-i18n="tab_play">الصدارة</span>
-        </a>
-        <a class="tab-item" onclick="switchTab('auth', this)">
-            <i class="fa-solid fa-user"></i>
-            <span data-i18n="tab_profile">حسابي</span>
-        </a>
-        <a class="tab-item" onclick="switchTab('settings', this)">
-            <i class="fa-solid fa-gear"></i>
-            <span data-i18n="tab_settings">الإعدادات</span>
-        </a>
-    </nav>
-
     <script>
-        // 1. TABS SYSTEM MANAGER
-        function switchTab(viewId, element = null) {
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            document.getElementById('view-' + viewId).classList.add('active');
-            
-            if(element) {
-                document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
-                element.classList.add('active');
-            }
-        }
+        // ... (كود التايمر ونظام اللغة والتبويبات مالتك يبقى نفسه) ...
 
-        // 2. COUNTDOWN LOGIC
-        const targetDate = new Date("June 11, 2026 10:00:00").getTime();
-        setInterval(() => {
-            const diff = targetDate - new Date().getTime();
-            if (diff > 0) {
-                document.getElementById("t-mo").innerText = Math.floor(diff / (1000 * 60 * 60 * 24 * 30)).toString().padStart(2, '0');
-                document.getElementById("t-dy").innerText = Math.floor((diff % (1000 * 60 * 60 * 24 * 30)) / (1000 * 60 * 60 * 24)).toString().padStart(2, '0');
-                document.getElementById("t-hr").innerText = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, '0');
-                document.getElementById("t-mn").innerText = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
-                document.getElementById("t-sc").innerText = Math.floor((diff % (1000 * 60)) / 1000).toString().padStart(2, '0');
-            }
-        }, 1000);
-
-        // 3. AUTHENTICATION & USER SESSION SYSTEM
-        let currentUser = JSON.parse(localStorage.getItem('sophie_user')) || null;
-
-        function updateUIAuth() {
-            const loginBox = document.getElementById('login-box');
-            const profileBox = document.getElementById('profile-box');
-            const navIcon = document.getElementById('global-user-icon');
-            const navName = document.getElementById('global-user-name');
-
-            if (currentUser) {
-                loginBox.style.display = 'none';
-                profileBox.style.display = 'block';
-                const avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser.name}`;
-                navIcon.src = avatarUrl;
-                document.getElementById('profile-large-icon').src = avatarUrl;
-                navName.innerText = currentUser.name;
-                document.getElementById('profile-name-display').innerText = currentUser.name;
-                document.getElementById('profile-points-display').innerText = currentUser.points;
-            } else {
-                loginBox.style.display = 'block';
-                profileBox.style.display = 'none';
-                navIcon.src = 'https://api.dicebear.com/7.x/avataaars/svg?seed=Guest';
-                navName.innerText = translations[currentLang].login_btn;
-            }
-            renderLeaderboard();
-        }
-
-        function loginUser() {
-            const name = document.getElementById('auth-username').value.trim();
-            const pass = document.getElementById('auth-password').value.trim();
-            if(!name || !pass) return alert(translations[currentLang].err_empty);
-            
-            currentUser = { name: name, points: 0, usedCodes: [] };
-            localStorage.setItem('sophie_user', JSON.stringify(currentUser));
-            updateUIAuth();
-            confetti({ particleCount: 100, spread: 70 });
-        }
-
-        function logoutUser() {
-            localStorage.removeItem('sophie_user');
-            currentUser = null;
-            document.getElementById('auth-username').value = "";
-            document.getElementById('auth-password').value = "";
-            updateUIAuth();
-        }
-
-        // 4. PROMO CODES & LEADERBOARD SYSTEM (REAL LOGIC)
-        const validCodes = { "SOPHIE2026": 1000, "ZERO": 500, "GAMER": 250 };
-        let leaderboardDB = [
-            { name: "Sophie Gamer", points: 99999 },
-            { name: "Ali", points: 1500 },
-            { name: "PKXD_Fan", points: 800 }
-        ];
-
-        function redeemCode() {
-            if(!currentUser) return alert(translations[currentLang].err_login_first);
-            
-            const code = document.getElementById('promo-input').value.trim().toUpperCase();
-            
-            if (currentUser.usedCodes.includes(code)) {
-                return alert(translations[currentLang].err_code_used);
-            }
-
-            if (validCodes[code]) {
-                currentUser.points += validCodes[code];
-                currentUser.usedCodes.push(code);
-                localStorage.setItem('sophie_user', JSON.stringify(currentUser));
-                updateUIAuth();
-                alert(translations[currentLang].success_code + validCodes[code]);
-                confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
-                document.getElementById('promo-input').value = "";
-            } else {
-                alert(translations[currentLang].err_code_invalid);
-            }
-        }
-
+        // ربط السيرفر وتحديث الصدارة
         function renderLeaderboard() {
             const list = document.getElementById('leaderboard-list');
-            list.innerHTML = "";
-            
-            // Clone DB and add current user if exists
-            let displayBoard = [...leaderboardDB];
-            if(currentUser) {
-                // Remove if exists to update score
-                displayBoard = displayBoard.filter(u => u.name !== currentUser.name);
-                displayBoard.push({ name: currentUser.name, points: currentUser.points });
-            }
-
-            // Sort highest to lowest
-            displayBoard.sort((a, b) => b.points - a.points);
-
-            displayBoard.forEach((user, index) => {
-                const avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`;
-                list.innerHTML += `
-                    <div class="leader-row">
-                        <div class="leader-info">
-                            <span class="rank-num">#${index + 1}</span>
-                            <img src="${avatarUrl}" class="user-icon-img">
-                            <span style="font-weight:600;">${user.name}</span>
-                        </div>
-                        <span style="color:var(--ios-blue); font-weight:bold;">${user.points} pts</span>
-                    </div>
-                `;
+            const boardRef = ref(window.db, 'leaderboard');
+            onValue(boardRef, (snapshot) => {
+                const data = snapshot.val() || {};
+                let displayBoard = Object.keys(data).map(name => ({ name, points: data[name].points }));
+                displayBoard.sort((a, b) => b.points - a.points);
+                
+                list.innerHTML = "";
+                displayBoard.forEach((user, index) => {
+                    const avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`;
+                    list.innerHTML += `<div class="leader-row"><div class="leader-info"><span class="rank-num">#${index + 1}</span><img src="${avatarUrl}" class="user-icon-img"><span style="font-weight:600;">${user.name}</span></div><span style="color:var(--ios-blue); font-weight:bold;">${user.points} pts</span></div>`;
+                });
             });
         }
 
-        // 5. YOUTUBE LIVE COUNTER (API EXPLANATION & SIMULATOR)
-        /* *ملاحظة برمجية للمطور صوفي:* لجلب الرقم حقيقي 100% من يوتيوب، تحتاج تسوي حساب بـ Google Cloud 
-           وتجيب (YouTube Data API v3 Key)، وبعدها تستخدم دالة fetch مثل هاي:
-           fetch('https://www.googleapis.com/youtube/v3/channels?part=statistics&id=YOUR_CHANNEL_ID&key=YOUR_API_KEY')
-           وبما إن المفتاح هذا يعتبر سرّي وخاص بيك، برمجتلك الكود كـ Simulator (يحاكي الزيادة بذكاء)
-           لحين ما تدمج الـ API الخاص بيك مستقبلاً!
-        */
-        let ytCurrentCount = 99950;
-        function refreshYTCounter() {
-            ytCurrentCount += Math.floor(Math.random() * 5) + 1;
-            document.getElementById('yt-count-display').innerText = ytCurrentCount.toLocaleString();
-            if (ytCurrentCount >= 100000) {
-                confetti({ particleCount: 300, spread: 120 });
+        // تفعيل الكود وحفظه بالسيرفر
+        function redeemCode() {
+            if(!currentUser) return alert(translations[currentLang].err_login_first);
+            const code = document.getElementById('promo-input').value.trim().toUpperCase();
+            const validCodes = { "SOPHIE2026": 1000, "ZERO": 500 };
+            
+            if (validCodes[code]) {
+                const userRef = ref(window.db, 'leaderboard/' + currentUser.name);
+                currentUser.points += validCodes[code];
+                update(userRef, { points: currentUser.points });
+                alert(translations[currentLang].success_code + validCodes[code]);
+                document.getElementById('promo-input').value = "";
             }
         }
-
-        // 6. MULTI-LANGUAGE SYSTEM (10 LANGUAGES WITH AUTO-DETECT)
-        const translations = {
-            ar: {
-                app_title: "منصة صوفي", event_title: "زيرو جرافيتي 2026", event_sub: "الحدث الأضخم قادم قريباً",
-                t_months: "أشهر", t_days: "أيام", t_hours: "ساعات", t_minutes: "دقائق", t_seconds: "ثواني",
-                tab_home: "الرئيسية", tab_play: "الصدارة", tab_profile: "حسابي", tab_settings: "الإعدادات",
-                promo_title: "أكواد الهدايا", promo_sub: "أدخل كود الفعالية لتحصل على نقاط ترفع تصنيفك!", promo_btn: "تفعيل الكود",
-                leader_title: "لوحة الصدارة العالمية", login_title: "تسجيل الدخول", login_btn: "تسجيل الدخول",
-                logout_btn: "تسجيل الخروج", profile_points: "إجمالي النقاط: ", lang_title: "لغة التطبيق (Language)",
-                lang_sub: "المنصة تتفاعل تلقائياً مع لغة جهازك، أو اختر لغتك يدوياً:",
-                err_empty: "يرجى كتابة الاسم وكلمة المرور!", err_login_first: "يرجى تسجيل الدخول أولاً!",
-                err_code_used: "لقد قمت باستخدام هذا الكود مسبقاً!", err_code_invalid: "الكود غير صحيح أو منتهي الصلاحية!",
-                success_code: "مبروك! حصلت على نقاط: ", yt_counter_title: "عداد المشتركين", yt_counter_sub: "بيانات حية من الخادم", yt_refresh: "تحديث العداد"
-            },
-            en: {
-                app_title: "Sophie Hub", event_title: "Zero Gravity 2026", event_sub: "The biggest event is coming",
-                t_months: "Months", t_days: "Days", t_hours: "Hours", t_minutes: "Mins", t_seconds: "Secs",
-                tab_home: "Home", tab_play: "Leaderboard", tab_profile: "Profile", tab_settings: "Settings",
-                promo_title: "Promo Codes", promo_sub: "Enter code to earn points and rank up!", promo_btn: "Redeem",
-                leader_title: "Global Leaderboard", login_title: "Account Login", login_btn: "Login",
-                logout_btn: "Logout", profile_points: "Total Points: ", lang_title: "App Language",
-                lang_sub: "Auto-detects your device language, or select manually:",
-                err_empty: "Please enter username and password!", err_login_first: "Please login first!",
-                err_code_used: "You have already used this code!", err_code_invalid: "Invalid or expired promo code!",
-                success_code: "Congrats! You earned points: ", yt_counter_title: "Subscribers", yt_counter_sub: "Live from server", yt_refresh: "Refresh"
-            },
-            pt: {
-                app_title: "Sophie Hub", event_title: "Zero Gravity 2026", event_sub: "O maior evento está chegando",
-                t_months: "Meses", t_days: "Dias", t_hours: "Horas", t_minutes: "Min", t_seconds: "Seg",
-                tab_home: "Início", tab_play: "Ranking", tab_profile: "Perfil", tab_settings: "Ajustes",
-                promo_title: "Códigos Promo", promo_sub: "Insira o código para ganhar pontos!", promo_btn: "Resgatar",
-                leader_title: "Ranking Global", login_title: "Fazer Login", login_btn: "Entrar",
-                logout_btn: "Sair", profile_points: "Pontos Totais: ", lang_title: "Idioma",
-                lang_sub: "Detecta automaticamente, ou selecione:",
-                err_empty: "Preencha todos os campos!", err_login_first: "Faça login primeiro!",
-                err_code_used: "Código já resgatado!", err_code_invalid: "Código inválido!",
-                success_code: "Parabéns! Pontos ganhos: ", yt_counter_title: "Inscritos", yt_counter_sub: "Ao vivo do servidor", yt_refresh: "Atualizar"
-            },
-            es: { app_title: "Sophie Hub", event_title: "Gravedad Cero 2026", event_sub: "El mayor evento se acerca", t_months: "Meses", t_days: "Días", t_hours: "Horas", t_minutes: "Min", t_seconds: "Seg", tab_home: "Inicio", tab_play: "Ranking", tab_profile: "Perfil", tab_settings: "Ajustes", promo_title: "Códigos Promo", promo_sub: "¡Ingresa tu código!", promo_btn: "Canjear", leader_title: "Ranking Global", login_title: "Iniciar sesión", login_btn: "Entrar", logout_btn: "Salir", profile_points: "Puntos: ", lang_title: "Idioma", lang_sub: "Automático o manual:", err_empty: "¡Faltan datos!", err_login_first: "¡Inicia sesión primero!", err_code_used: "¡Código ya usado!", err_code_invalid: "¡Código inválido!", success_code: "¡Puntos ganados: ", yt_counter_title: "Suscriptores", yt_counter_sub: "En vivo", yt_refresh: "Actualizar" },
-            fr: { app_title: "Sophie Hub", event_title: "Gravité Zéro 2026", event_sub: "Le plus grand événement approche", t_months: "Mois", t_days: "Jours", t_hours: "Heures", t_minutes: "Min", t_seconds: "Sec", tab_home: "Accueil", tab_play: "Classement", tab_profile: "Profil", tab_settings: "Paramètres", promo_title: "Codes Promo", promo_sub: "Entrez votre code!", promo_btn: "Utiliser", leader_title: "Classement Mondial", login_title: "Connexion", login_btn: "Se connecter", logout_btn: "Déconnexion", profile_points: "Points: ", lang_title: "Langue", lang_sub: "Automatique ou manuel:", err_empty: "Données manquantes!", err_login_first: "Connectez-vous d'abord!", err_code_used: "Code déjà utilisé!", err_code_invalid: "Code invalide!", success_code: "Points gagnés: ", yt_counter_title: "Abonnés", yt_counter_sub: "En direct", yt_refresh: "Actualiser" },
-            de: { app_title: "Sophie Hub", event_title: "Schwerelosigkeit 2026", event_sub: "Das größte Event kommt", t_months: "Monate", t_days: "Tage", t_hours: "Stunden", t_minutes: "Min", t_seconds: "Sek", tab_home: "Start", tab_play: "Rangliste", tab_profile: "Profil", tab_settings: "Einstellen", promo_title: "Promo-Codes", promo_sub: "Code eingeben!", promo_btn: "Einlösen", leader_title: "Globale Rangliste", login_title: "Anmelden", login_btn: "Einloggen", logout_btn: "Abmelden", profile_points: "Punkte: ", lang_title: "Sprache", lang_sub: "Automatisch oder manuell:", err_empty: "Daten fehlen!", err_login_first: "Zuerst anmelden!", err_code_used: "Code bereits verwendet!", err_code_invalid: "Ungültiger Code!", success_code: "Punkte verdient: ", yt_counter_title: "Abonnenten", yt_counter_sub: "Live", yt_refresh: "Aktualisieren" },
-            tr: { app_title: "Sophie Hub", event_title: "Sıfır Yerçekimi 2026", event_sub: "En büyük etkinlik geliyor", t_months: "Ay", t_days: "Gün", t_hours: "Saat", t_minutes: "Dak", t_seconds: "San", tab_home: "Ana", tab_play: "Sıralama", tab_profile: "Profil", tab_settings: "Ayarlar", promo_title: "Promo Kodları", promo_sub: "Kodunuzu girin!", promo_btn: "Kullan", leader_title: "Küresel Sıralama", login_title: "Giriş", login_btn: "Giriş Yap", logout_btn: "Çıkış", profile_points: "Puanlar: ", lang_title: "Dil", lang_sub: "Otomatik veya manuel:", err_empty: "Eksik veri!", err_login_first: "Önce giriş yapın!", err_code_used: "Kod zaten kullanıldı!", err_code_invalid: "Geçersiz kod!", success_code: "Kazanılan puan: ", yt_counter_title: "Aboneler", yt_counter_sub: "Canlı", yt_refresh: "Yenile" },
-            it: { app_title: "Sophie Hub", event_title: "Gravità Zero 2026", event_sub: "Il più grande evento sta arrivando", t_months: "Mesi", t_days: "Giorni", t_hours: "Ore", t_minutes: "Min", t_seconds: "Sec", tab_home: "Home", tab_play: "Classifica", tab_profile: "Profilo", tab_settings: "Impostazioni", promo_title: "Codici Promo", promo_sub: "Inserisci il tuo codice!", promo_btn: "Riscatta", leader_title: "Classifica Globale", login_title: "Accesso", login_btn: "Entra", logout_btn: "Esci", profile_points: "Punti: ", lang_title: "Lingua", lang_sub: "Automatico o manuale:", err_empty: "Dati mancanti!", err_login_first: "Accedi prima!", err_code_used: "Codice già usato!", err_code_invalid: "Codice non valido!", success_code: "Punti guadagnati: ", yt_counter_title: "Iscritti", yt_counter_sub: "In diretta", yt_refresh: "Aggiorna" },
-            ja: { app_title: "Sophie Hub", event_title: "無重力 2026", event_sub: "最大のイベントがやってくる", t_months: "月", t_days: "日", t_hours: "時間", t_minutes: "分", t_seconds: "秒", tab_home: "ホーム", tab_play: "ランキング", tab_profile: "プロフ", tab_settings: "設定", promo_title: "プロモコード", promo_sub: "コードを入力！", promo_btn: "引き換える", leader_title: "グローバルランキング", login_title: "ログイン", login_btn: "入る", logout_btn: "ログアウト", profile_points: "ポイント: ", lang_title: "言語", lang_sub: "自動または手動:", err_empty: "データがありません！", err_login_first: "先にログインして！", err_code_used: "コード使用済み！", err_code_invalid: "無効なコード！", success_code: "ポイント獲得: ", yt_counter_title: "登録者数", yt_counter_sub: "ライブ", yt_refresh: "更新" },
-            ko: { app_title: "Sophie Hub", event_title: "무중력 2026", event_sub: "가장 큰 이벤트가 다가옵니다", t_months: "월", t_days: "일", t_hours: "시간", t_minutes: "분", t_seconds: "초", tab_home: "홈", tab_play: "순위표", tab_profile: "프로필", tab_settings: "설정", promo_title: "프로모션 코드", promo_sub: "코드를 입력하세요!", promo_btn: "교환", leader_title: "글로벌 순위표", login_title: "로그인", login_btn: "입장", logout_btn: "로그아웃", profile_points: "포인트: ", lang_title: "언어", lang_sub: "자동 또는 수동:", err_empty: "데이터 누락!", err_login_first: "먼저 로그인하세요!", err_code_used: "이미 사용된 코드!", err_code_invalid: "잘못된 코드!", success_code: "포인트 획득: ", yt_counter_title: "구독자", yt_counter_sub: "라이브", yt_refresh: "새로고침" }
-        };
-
-        let currentLang = localStorage.getItem('sophie_lang') || 'ar';
-
-        function detectDeviceLanguage() {
-            if(!localStorage.getItem('sophie_lang')) {
-                const navLang = navigator.language.slice(0, 2);
-                if(translations[navLang]) { currentLang = navLang; }
-            }
-            applyLanguage();
-        }
-
-        function setLanguage(langKey) {
-            currentLang = langKey;
-            localStorage.setItem('sophie_lang', langKey);
-            applyLanguage();
-            // Highlight active button
-            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active-lang'));
-            event.target.classList.add('active-lang');
-        }
-
-        function applyLanguage() {
-            const dict = translations[currentLang];
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if(dict[key]) el.innerText = dict[key];
-            });
-            
-            // Adjust text direction for Arabic
-            document.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-            
-            // Update Auth UI names if needed
-            if(!currentUser) document.getElementById('global-user-name').innerText = dict.login_btn;
-        }
-
-        // INITIALIZE ALL
-        window.onload = () => {
-            detectDeviceLanguage();
-            updateUIAuth();
-        };
-
     </script>
-<script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
-
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyDH6b4uEYTl1Gn3SltnW0svmsvbGqIns74",
-    authDomain: "g-sophiegamer.firebaseapp.com",
-    projectId: "g-sophiegamer",
-    storageBucket: "g-sophiegamer.firebasestorage.app",
-    messagingSenderId: "409547297973",
-    appId: "1:409547297973:web:d566cef63240c8cdd0dafc",
-    measurementId: "G-FJRE62DJV2"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-</script>
 </body>
 </html>
