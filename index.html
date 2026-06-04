@@ -2,417 +2,273 @@
 <html lang="en" dir="ltr" id="app-root">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zero-Gravity Hub | Sophie Gamer</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-        import { getDatabase, ref, onValue, update, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+        import { getDatabase, ref, onValue, set, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-        const firebaseConfig = { databaseURL: "https://g-sophiegamer-default-rtdb.firebaseio.com" };
-        const app = initializeApp(firebaseConfig);
-        window.db = getDatabase(app);
-        window.auth = getAuth(app);
-        window.dbRef = ref; window.dbOnValue = onValue; window.dbUpdate = update;
+        // ⚠️ مهم جداً يا صوفي: هنا لازم تحط معلومات الـ Firebase مالتك حتى التفاعلات تصير علنية لكل الناس!
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // أنا خليت الكود يشتغل حتى لو ما حطيت المفاتيح (حتى تشوف الشكل)، بس من تحطها راح يصير حقيقي!
+        try {
+            const app = initializeApp(firebaseConfig);
+            window.db = getDatabase(app);
+            window.dbRef = ref; window.dbSet = set; window.dbUpdate = update; window.dbOnValue = onValue;
+            console.log("Firebase Connected!");
+        } catch (e) {
+            console.log("Firebase not configured yet. Running in UI mode.");
+        }
     </script>
 
     <style>
         :root {
-            --ios-bg: #000000;
-            --ios-card: rgba(28, 28, 30, 0.65);
+            --ios-bg: #0f0f13;
+            --ios-card: rgba(28, 28, 30, 0.7);
             --ios-border: rgba(255, 255, 255, 0.1);
             --ios-text: #ffffff;
-            --ios-sub: #ebebf599;
             --ios-blue: #0a84ff;
-            --ios-pink: #ff2d55;
             --ios-green: #30d158;
-            --blur: blur(25px);
             --app-font: -apple-system, sans-serif;
-            --app-font-size: 16px;
             --bg-image: none;
         }
 
-        html, body {
-            min-height: 100vh; margin: 0; padding: 0;
+        body {
             background-color: var(--ios-bg); background-image: var(--bg-image);
             background-size: cover; background-position: center; background-attachment: fixed;
-            color: var(--ios-text); font-family: var(--app-font); font-size: var(--app-font-size);
-            overflow-x: hidden; transition: all 0.3s ease;
+            color: var(--ios-text); font-family: var(--app-font); margin: 0; padding: 20px; padding-bottom: 100px;
         }
-        * { box-sizing: border-box; }
 
-        .top-nav { position: fixed; top: 0; width: 100%; height: 65px; background: rgba(0, 0, 0, 0.55); backdrop-filter: var(--blur); border-bottom: 0.5px solid var(--ios-border); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; z-index: 9999; }
-        .nav-logo { font-weight: 800; font-size: 1.3rem; background: linear-gradient(90deg, #0a84ff, #ff2d55); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .card { background: var(--ios-card); backdrop-filter: blur(20px); border: 1px solid var(--ios-border); border-radius: 20px; padding: 20px; margin-bottom: 20px; }
         
-        .app-container { padding: 85px 20px 120px 20px; max-width: 900px; margin: 0 auto; }
-        .ios-card { background: var(--ios-card); backdrop-filter: var(--blur); border: 1px solid var(--ios-border); border-radius: 24px; padding: 24px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        .view-section { display: none; animation: slideUp 0.4s ease forwards; }
-        .view-section.active { display: block; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-
-        .ios-btn { background: var(--ios-blue); color: #fff; border: none; padding: 16px 24px; border-radius: 16px; font-size: 1rem; font-weight: 700; width: 100%; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .ios-btn:active { transform: scale(0.95); }
-        .ios-input { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--ios-border); color: var(--ios-text); padding: 16px; border-radius: 16px; font-size: 1rem; margin-bottom: 16px; outline: none; }
+        .btn { background: var(--ios-blue); color: #fff; border: none; padding: 12px 20px; border-radius: 12px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
+        .input-box { width: 100%; background: rgba(0,0,0,0.5); border: 1px solid var(--ios-border); color: white; padding: 12px; border-radius: 12px; box-sizing: border-box; }
         
-        .bottom-tab-bar { position: fixed; bottom: 0; width: 100%; height: 85px; background: rgba(15, 15, 15, 0.85); backdrop-filter: var(--blur); border-top: 1px solid var(--ios-border); display: flex; justify-content: space-around; align-items: center; z-index: 9999; padding-bottom: 20px; }
-        .tab-item { display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--ios-sub); font-size: 0.75rem; cursor: pointer; transition: 0.3s; font-weight: 500; }
-        .tab-item i { font-size: 1.6rem; }
-        .tab-item.active { color: var(--ios-blue); transform: translateY(-3px); }
+        /* شبكة الخلفيات */
+        .bg-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 10px; }
+        .bg-item { height: 50px; border-radius: 10px; cursor: pointer; border: 2px solid transparent; background-size: cover; background-position: center; }
+        .bg-item:hover { border-color: white; }
 
-        .timer-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 20px; }
-        .time-box { background: rgba(255,255,255,0.05); border: 1px solid var(--ios-border); border-radius: 16px; padding: 15px 5px; text-align: center; }
-        .time-box span { font-size: 1.8rem; font-weight: 800; display: block; }
-        .time-box label { font-size: 0.65rem; color: var(--ios-sub); font-weight: 600; }
-
-        .links-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; }
-        .link-card { background: rgba(255,255,255,0.05); border: 1px solid var(--ios-border); border-radius: 16px; padding: 20px; text-align: center; text-decoration: none; color: white; display: flex; flex-direction: column; align-items: center; gap: 10px; transition: 0.3s; }
-        .link-card i { font-size: 2.5rem; }
-        .link-card:active { transform: scale(0.95); }
-
-        .avatar-circle { width: 40px; height: 40px; border-radius: 50%; background-color: #444; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: #fff; border: 2px solid var(--ios-border); overflow: hidden; background-size: cover; background-position: center; cursor: pointer; }
-        .captcha-box { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.5); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--ios-border); cursor: pointer; }
-        .captcha-checkbox { width: 24px; height: 24px; border: 2px solid var(--ios-sub); border-radius: 4px; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
-        .captcha-checkbox.checked { background: var(--ios-green); border-color: var(--ios-green); }
-        .captcha-checkbox.checked::after { content: '✓'; color: white; font-weight: bold; }
-        
-        .bg-option { min-width: 60px; height: 60px; border-radius: 12px; cursor: pointer; border: 1px solid var(--ios-border); background-size: cover; background-position: center; }
+        iframe { width: 100%; border-radius: 15px; border: none; aspect-ratio: 16/9; }
     </style>
 </head>
 <body>
 
-    <nav class="top-nav">
-        <div class="nav-logo">Zero Gravity Hub</div>
-        <div style="display: flex; align-items: center; gap: 10px; cursor: pointer;" onclick="switchTab('auth')">
-            <span id="nav-username" style="font-weight: 600; font-size: 0.9rem;" data-trans="login_nav">Login</span>
-            <div class="avatar-circle" id="nav-avatar"><i class="fa-solid fa-user"></i></div>
+    <h1 style="text-align: center; color: var(--ios-blue);">Zero Gravity Hub</h1>
+
+    <div class="card">
+        <h3>📺 آخر فيديو بالقناة (تلقائي)</h3>
+        <div id="latest-video-container">
+            <p>جاري سحب أحدث فيديو من قناة @sophiegamer01...</p>
         </div>
-    </nav>
-
-    <!-- الموسيقى بالخلفية -->
-    <audio id="bg-audio" loop preload="auto">
-        <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_a16eb4779a.mp3?filename=electronic-future-beats-117997.mp3" type="audio/mpeg">
-    </audio>
-
-    <div class="app-container">
-
-        <!-- 1. الرئيسية -->
-        <section id="view-home" class="view-section active">
-            <div class="ios-card" style="text-align: center; padding: 40px 20px;">
-                <h1 style="font-size: 2.5rem; margin-bottom: 10px; background: linear-gradient(45deg, #0a84ff, #ff2d55); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Zero Gravity 2026</h1>
-                <p style="color: var(--ios-sub); font-size: 1.1rem;" data-trans="countdown_sub">The biggest Brazilian event in PK XD</p>
-                
-                <div class="timer-grid">
-                    <div class="time-box"><span id="t-mo">00</span><label data-trans="mo">Month</label></div>
-                    <div class="time-box"><span id="t-dy">00</span><label data-trans="dy">Day</label></div>
-                    <div class="time-box"><span id="t-hr">00</span><label data-trans="hr">Hour</label></div>
-                    <div class="time-box"><span id="t-mn">00</span><label data-trans="mn">Min</label></div>
-                    <div class="time-box"><span id="t-sc">00</span><label data-trans="sc">Sec</label></div>
-                </div>
-            </div>
-            
-            <div class="ios-card">
-                <h3 style="margin-bottom: 20px;" data-trans="media_hub">Media Hub (Latest Videos)</h3>
-                <div style="background: rgba(0,0,0,0.6); padding: 40px 20px; text-align: center; border-radius: 16px; border: 1px solid var(--ios-border);">
-                    <i class="fa-brands fa-youtube" style="font-size: 4rem; margin-bottom: 15px; color: #ff0000;"></i>
-                    <h2 data-trans="media_title" style="margin-bottom: 10px;">@sophiegamer01 Channel</h2>
-                    <p data-trans="media_desc" style="color: var(--ios-sub);">Latest videos and exclusive clips will be shown here directly.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- 2. الروابط -->
-        <section id="view-links" class="view-section">
-            <div class="ios-card">
-                <h3 style="margin-bottom: 20px;" data-trans="my_links">Official Links</h3>
-                <div class="links-grid">
-                    <a href="https://linkbio.co/sophiegamer" target="_blank" class="link-card"><i class="fa-solid fa-globe" style="color:#0a84ff;"></i> <span data-trans="link_website">Official Website</span></a>
-                    <a href="https://www.youtube.com/@sophiegamer01" target="_blank" class="link-card"><i class="fa-brands fa-youtube" style="color:#ff0000;"></i> <span data-trans="link_yt">YouTube</span></a>
-                    <a href="https://www.instagram.com/sophiegamer01/" target="_blank" class="link-card"><i class="fa-brands fa-instagram" style="color:#E1306C;"></i> <span data-trans="link_insta">Instagram</span></a>
-                    <a href="https://discord.gg/9AZb9XaUBK" target="_blank" class="link-card"><i class="fa-brands fa-discord" style="color:#5865F2;"></i> <span data-trans="link_discord">Discord</span></a>
-                </div>
-            </div>
-
-            <div class="ios-card">
-                <h3 style="margin-bottom: 20px;" data-trans="games_links">Games & Maps</h3>
-                <div class="links-grid">
-                    <a href="https://play-pkxd.sng.link/Erxjy/imwe/r_c323d19949" target="_blank" class="link-card"><i class="fa-solid fa-cube" style="color:#ff2d55;"></i> <span data-trans="link_pkxd">PK XD Map</span></a>
-                    <a href="https://www.roblox.com/share?code=811483a3d9997441aadc33d04627cb34&type=Profile" target="_blank" class="link-card"><i class="fa-solid fa-gamepad"></i> <span data-trans="link_roblox_acc">Roblox Account</span></a>
-                    <a href="https://www.roblox.com/share?code=fa05b3e353b2834392b1b3e374335a75" target="_blank" class="link-card"><i class="fa-solid fa-map-location-dot"></i> <span data-trans="link_map1">Roblox Map 1</span></a>
-                    <a href="https://www.roblox.com/share?code=16727a705de1b64c84599ecaada97441" target="_blank" class="link-card"><i class="fa-solid fa-map-location-dot"></i> <span data-trans="link_map2">Roblox Map 2</span></a>
-                </div>
-            </div>
-
-            <div class="ios-card">
-                <h3 style="margin-bottom: 20px;" data-trans="download_pkxd">Download PK XD</h3>
-                <div class="links-grid">
-                    <a href="https://apps.apple.com/us/app/pk-xd-explore-universes/id1474849981" target="_blank" class="link-card"><i class="fa-brands fa-apple"></i> Mac / iOS</a>
-                    <a href="https://www.playpkxd.com/" target="_blank" class="link-card"><i class="fa-brands fa-windows" style="color:#00a4ef;"></i> Windows</a>
-                    <a href="https://play.google.com/store/apps/details?id=com.movile.playkids.pkxd" target="_blank" class="link-card"><i class="fa-brands fa-android" style="color:#3DDC84;"></i> Android</a>
-                </div>
-            </div>
-        </section>
-
-        <!-- 3. الصدارة (Firebase) -->
-        <section id="view-play" class="view-section">
-            <div class="ios-card">
-                <h3 data-trans="promo_title">Gift Codes</h3>
-                <input type="text" class="ios-input" id="promo-input" placeholder="Enter code here..." style="text-align: center; text-transform: uppercase;">
-                <button class="ios-btn" onclick="redeemCode()"><i class="fa-solid fa-gift"></i> <span data-trans="btn_redeem">Redeem Code</span></button>
-            </div>
-            <div class="ios-card">
-                <h3 style="margin-bottom: 20px; color: #FFD700;"><i class="fa-solid fa-trophy"></i> <span data-trans="leaderboard">Live Leaderboard</span></h3>
-                <div id="leaderboard-list">
-                    <div style="text-align:center; padding: 20px; color: var(--ios-sub);" data-trans="loading_db">Connecting to DB... 🔄</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 4. المجتمع (Social) -->
-        <section id="view-social" class="view-section">
-            <div class="ios-card">
-                <div id="tab-posts">
-                    <div class="ios-input" style="display:flex; gap:10px; align-items:center; cursor:pointer;" onclick="alert(dict[currentLang].alert_post)">
-                        <div class="avatar-circle" style="width:30px; height:30px;"><i class="fa-solid fa-user"></i></div>
-                        <span style="color:var(--ios-sub);" data-trans="post_placeholder">What's on your mind?</span>
-                    </div>
-                    
-                    <div class="ios-card" style="background: rgba(0,0,0,0.3); padding: 15px;">
-                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                            <div class="avatar-circle">S</div>
-                            <div>
-                                <div style="font-weight:bold;">Sophie Gamer <i class="fa-solid fa-circle-check" style="color:var(--ios-blue);"></i></div>
-                                <div style="font-size:0.75rem; color:var(--ios-sub);">Now</div>
-                            </div>
-                        </div>
-                        <p data-trans="post_example">Zero Gravity update is going to be legendary! Are you ready? 🔥🚀</p>
-                        <div style="margin-top:15px; border-top:1px solid var(--ios-border); padding-top:15px; color: var(--ios-sub); display:flex; justify-content:space-around;">
-                            <span style="cursor:pointer; transition:0.3s;" onclick="interactBtn(this, 'like')"><i class="fa-regular fa-heart"></i> 1.2K</span>
-                            <span style="cursor:pointer; transition:0.3s;" onclick="interactBtn(this, 'comment')"><i class="fa-regular fa-comment"></i> <span data-trans="btn_comment">Comment</span></span>
-                            <span style="cursor:pointer; transition:0.3s;" onclick="interactBtn(this, 'share')"><i class="fa-solid fa-share"></i> <span data-trans="btn_share">Share</span></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 5. الحساب والتسجيل -->
-        <section id="view-auth" class="view-section">
-            <div class="ios-card" id="login-box">
-                <h2 style="text-align: center; margin-bottom: 20px;" data-trans="login_title">Login / Register</h2>
-                <input type="email" id="auth-email" class="ios-input" placeholder="Email">
-                <input type="password" id="auth-password" class="ios-input" placeholder="Password">
-                
-                <div class="captcha-box" onclick="toggleCaptcha()">
-                    <div class="captcha-checkbox" id="captcha-check"></div>
-                    <span style="font-weight:bold;" data-trans="captcha">I am human (Not a robot)</span>
-                </div>
-
-                <input type="text" id="auth-2fa" class="ios-input" placeholder="2FA Code (Hint: 123456)" style="display:none;">
-
-                <button class="ios-btn" onclick="loginUser()"><i class="fa-solid fa-right-to-bracket"></i> <span data-trans="btn_login">Login</span></button>
-            </div>
-
-            <div class="ios-card" id="profile-box" style="display: none; text-align: center;">
-                <div style="position:relative; width: 110px; height: 110px; margin: 0 auto 15px auto;">
-                    <div class="avatar-circle" id="main-avatar" style="width: 100%; height: 100%; font-size: 3.5rem; border-width: 3px;" onclick="document.getElementById('pfp-upload').click()"><i class="fa-solid fa-user"></i></div>
-                    <input type="file" id="pfp-upload" accept="image/*" style="display:none;" onchange="changeProfilePic(event)">
-                </div>
-                <h2 id="profile-name">User</h2>
-                <p style="color: var(--ios-blue); font-weight: 800; font-size: 1.2rem; margin-bottom: 20px;">Verified <i class="fa-solid fa-circle-check"></i></p>
-                
-                <button class="ios-btn" style="background: rgba(255,255,255,0.1); margin-bottom:15px;" onclick="switchAccount()"><i class="fa-solid fa-users-arrows"></i> <span data-trans="switch_acc">Switch Account</span></button>
-                <button class="ios-btn" style="background: var(--ios-pink);" onclick="logoutUser()"><i class="fa-solid fa-right-from-bracket"></i> <span data-trans="btn_logout">Logout</span></button>
-            </div>
-        </section>
-
-        <!-- 6. الإعدادات -->
-        <section id="view-settings" class="view-section">
-            <div class="ios-card">
-                <h3 data-trans="lang_title"><i class="fa-solid fa-globe"></i> Language</h3>
-                <select class="ios-input" id="lang-select" onchange="setLanguage(this.value)" style="margin-top: 10px;">
-                    <option value="en">English (الإنجليزية)</option>
-                    <option value="ar">العربية (Arabic)</option>
-                    <option value="pt">Português (البرازيلية)</option>
-                    <option value="es">Español (Spanish)</option>
-                    <option value="fr">Français (French)</option>
-                </select>
-                <p style="font-size:0.75rem; color:var(--ios-sub); margin-top:5px;" data-trans="lang_note">* All texts are translated automatically.</p>
-            </div>
-
-            <div class="ios-card">
-                <h3 data-trans="bg_title"><i class="fa-solid fa-image"></i> Custom Backgrounds</h3>
-                <div style="display: flex; gap: 10px; margin-top: 15px; overflow-x: auto; padding-bottom: 10px;">
-                    <!-- خلفيات متنوعة: سوداء، ثنائية، ثلاثية، متحركة -->
-                    <div class="bg-option" style="background: #000;" onclick="changeBg('#000000')"></div>
-                    <div class="bg-option" style="background: linear-gradient(45deg, #0a84ff, #ff2d55);" onclick="changeBg('linear-gradient(45deg, #0a84ff, #ff2d55)')"></div>
-                    <div class="bg-option" style="background: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);" onclick="changeBg('linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%)')"></div>
-                    <div class="bg-option" style="background: linear-gradient(to right, #ff9966, #ff5e62, #ff9966);" onclick="changeBg('linear-gradient(to right, #ff9966, #ff5e62, #ff9966)')"></div>
-                    <div class="bg-option" style="background-image: url('https://media.giphy.com/media/3o7aD2saalEvpjtce4/giphy.gif');" onclick="changeBg('url(https://media.giphy.com/media/3o7aD2saalEvpjtce4/giphy.gif)')"></div>
-                    <button class="ios-btn" style="min-width: 100px; padding: 0 10px; background: rgba(255,255,255,0.1);" onclick="document.getElementById('bg-upload').click()"><i class="fa-solid fa-plus"></i></button>
-                    <input type="file" id="bg-upload" accept="image/*, video/*, .gif" style="display: none;" onchange="uploadCustomBg(event)">
-                </div>
-            </div>
-
-            <div class="ios-card">
-                <h3 data-trans="music_title"><i class="fa-solid fa-music"></i> Music Player</h3>
-                <div style="background: rgba(0,0,0,0.4); border-radius: 20px; padding: 20px; margin-top: 15px;">
-                    <div style="text-align: center; font-weight: 600; margin-bottom: 10px;" id="track-name">Zero Gravity Theme (Preview)</div>
-                    <div style="display: flex; justify-content: center; gap: 30px; align-items: center; font-size: 1.5rem; margin-top: 20px;">
-                        <i class="fa-solid fa-play" id="play-btn" onclick="toggleMusic()" style="font-size: 2.2rem; color: var(--ios-blue); cursor: pointer;"></i>
-                    </div>
-                    <button class="ios-btn" style="margin-top: 25px; background: rgba(255,255,255,0.1);" onclick="document.getElementById('music-upload').click()"><i class="fa-solid fa-file-audio"></i> <span data-trans="upload_music">Import your own song</span></button>
-                    <input type="file" id="music-upload" accept="audio/*" style="display: none;" onchange="loadCustomMusic(event)">
-                </div>
-            </div>
-        </section>
-
     </div>
 
-    <nav class="bottom-tab-bar">
-        <div class="tab-item active" onclick="switchTab('home', this)"><i class="fa-solid fa-house"></i><span data-trans="tab_home">Home</span></div>
-        <div class="tab-item" onclick="switchTab('links', this)"><i class="fa-solid fa-link"></i><span data-trans="tab_links">Links</span></div>
-        <div class="tab-item" onclick="switchTab('play', this)"><i class="fa-solid fa-trophy"></i><span data-trans="tab_leader">Rank</span></div>
-        <div class="tab-item" onclick="switchTab('social', this)"><i class="fa-solid fa-users"></i><span data-trans="tab_social">Social</span></div>
-        <div class="tab-item" onclick="switchTab('auth', this)"><i class="fa-solid fa-shield-halved"></i><span data-trans="tab_auth">Account</span></div>
-        <div class="tab-item" onclick="switchTab('settings', this)"><i class="fa-solid fa-gear"></i><span data-trans="tab_settings">Settings</span></div>
-    </nav>
+    <div class="card" id="login-section">
+        <h3>تسجيل الدخول / حساب جديد</h3>
+        <input type="text" id="username" class="input-box" placeholder="اسم المستخدم">
+        
+        <div style="margin-top: 15px;">
+            <div class="g-recaptcha" data-sitekey="YOUR_RECAPTCHA_SITE_KEY"></div>
+        </div>
+        
+        <button class="btn" onclick="verifyLogin()">تحقق ودخول</button>
+    </div>
+
+    <div class="card">
+        <h3>🎁 أكواد الهدايا</h3>
+        <input type="text" id="promo-code" class="input-box" placeholder="أدخل الكود هنا">
+        <button class="btn" onclick="checkPromoCode()">استرداد الكود</button>
+        <p id="promo-result" style="text-align: center; font-weight: bold; margin-top: 10px;"></p>
+    </div>
+
+    <div class="card">
+        <h3>💬 مجتمع السيرفر (مباشر)</h3>
+        <input type="text" id="post-text" class="input-box" placeholder="اكتب رسالتك هنا...">
+        <button class="btn" style="background: var(--ios-green);" onclick="addPost()">نشر</button>
+        
+        <div id="posts-feed" style="margin-top: 20px;">
+            </div>
+    </div>
+
+    <div class="card">
+        <h3>🎵 الموسيقى</h3>
+        <select id="music-select" class="input-box" onchange="changeMusic()">
+            <option value="">إيقاف الموسيقى</option>
+            <option value="https://cdn.pixabay.com/download/audio/2022/02/22/audio_d1718ab41b.mp3">موسيقى حماسية 1</option>
+            <option value="https://cdn.pixabay.com/download/audio/2021/11/24/audio_91b3cb11e2.mp3">موسيقى فضائية 2</option>
+            <option value="https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3">موسيقى هادئة 3</option>
+        </select>
+        <button class="btn" onclick="document.getElementById('music-upload').click()">استيراد موسيقى من جهازي 📥</button>
+        <input type="file" id="music-upload" accept="audio/*" style="display: none;" onchange="importMusic(event)">
+        <audio id="bg-audio" loop></audio>
+
+        <h3 style="margin-top: 20px;">🖼️ 10 خلفيات ثابتة</h3>
+        <div class="bg-grid" id="static-bgs"></div>
+
+        <h3 style="margin-top: 20px;">✨ 5 خلفيات متحركة (GIF)</h3>
+        <div class="bg-grid" id="gif-bgs"></div>
+        
+        <button class="btn" onclick="document.getElementById('bg-upload').click()" style="margin-top: 15px;">استيراد خلفية من جهازي 📥</button>
+        <input type="file" id="bg-upload" accept="image/*" style="display: none;" onchange="importBg(event)">
+    </div>
 
     <script>
-        // قاموس الترجمة الشامل
-        const dict = {
-            en: { login_nav: "Login", countdown_sub: "The biggest Brazilian event in PK XD", mo: "Month", dy: "Day", hr: "Hour", mn: "Min", sc: "Sec", media_hub: "Media Hub (Latest Videos)", media_title: "@sophiegamer01 Channel", media_desc: "Latest videos and exclusive clips will be shown here directly.", my_links: "Official Links", link_website: "Official Website", link_yt: "YouTube", link_insta: "Instagram", link_discord: "Discord", games_links: "Games & Maps", link_pkxd: "PK XD Map", link_roblox_acc: "Roblox Account", link_map1: "Roblox Map 1", link_map2: "Roblox Map 2", download_pkxd: "Download PK XD", promo_title: "Gift Codes", btn_redeem: "Redeem Code", leaderboard: "Live Leaderboard", loading_db: "Connecting to DB... 🔄", post_placeholder: "What's on your mind?", post_example: "Zero Gravity update is going to be legendary! Are you ready? 🔥🚀", btn_comment: "Comment", btn_share: "Share", login_title: "Login / Register", captcha: "I am human (Not a robot)", btn_login: "Login", switch_acc: "Switch Account", btn_logout: "Logout", lang_title: "Language", lang_note: "* All texts are translated automatically.", bg_title: "Custom Backgrounds", music_title: "Music Player", upload_music: "Import your own song", tab_home: "Home", tab_links: "Links", tab_leader: "Rank", tab_social: "Social", tab_auth: "Account", tab_settings: "Settings", alert_post: "Opening post creator...", alert_comment: "Comments section opened!", alert_share: "Post link copied!" },
-            ar: { login_nav: "دخول", countdown_sub: "الحدث البرازيلي الأضخم في PK XD", mo: "شهر", dy: "يوم", hr: "ساعة", mn: "دقيقة", sc: "ثانية", media_hub: "Media Hub (أحدث الفيديوهات)", media_title: "قناة @sophiegamer01", media_desc: "سيتم عرض أحدث الفيديوهات والمقاطع الحصرية هنا مباشرة.", my_links: "روابطي الرسمية", link_website: "الموقع الرسمي", link_yt: "يوتيوب", link_insta: "انستغرام", link_discord: "ديسكورد", games_links: "روابط الألعاب والمابات", link_pkxd: "ماب PK XD", link_roblox_acc: "حساب روبلوكس", link_map1: "ماب روبلوكس 1", link_map2: "ماب روبلوكس 2", download_pkxd: "تحميل لعبة PK XD", promo_title: "أكواد الهدايا", btn_redeem: "تفعيل الكود", leaderboard: "لوحة الصدارة المباشرة", loading_db: "جاري الاتصال بقاعدة البيانات... 🔄", post_placeholder: "بماذا تفكر؟", post_example: "تحديث زيرو جرافيتي راح يكون أسطوري! مستعدين للمفاجآت؟ 🔥🚀", btn_comment: "تعليق", btn_share: "مشاركة", login_title: "تسجيل الدخول / حساب جديد", captcha: "أنا إنسان (لست روبوت)", btn_login: "دخول", switch_acc: "تبديل الحساب", btn_logout: "تسجيل الخروج", lang_title: "لغة النظام", lang_note: "* يتم ترجمة كل النصوص بالكامل تلقائياً.", bg_title: "تخصيص الخلفية", music_title: "مشغل الموسيقى", upload_music: "استيراد أغنيتك الخاصة", tab_home: "الرئيسية", tab_links: "الروابط", tab_leader: "الصدارة", tab_social: "المجتمع", tab_auth: "الحساب", tab_settings: "الإعدادات", alert_post: "جاري فتح نافذة النشر...", alert_comment: "تم فتح قسم التعليقات!", alert_share: "تم نسخ رابط المنشور!" },
-            pt: { login_nav: "Entrar", countdown_sub: "O maior evento brasileiro no PK XD", mo: "Mês", dy: "Dia", hr: "Hora", mn: "Min", sc: "Seg", media_hub: "Media Hub", media_title: "Canal @sophiegamer01", media_desc: "Vídeos mais recentes aparecerão aqui.", my_links: "Links Oficiais", link_website: "Site Oficial", link_yt: "YouTube", link_insta: "Instagram", link_discord: "Discord", games_links: "Links de Jogos", link_pkxd: "Mapa PK XD", link_roblox_acc: "Conta Roblox", link_map1: "Mapa Roblox 1", link_map2: "Mapa Roblox 2", download_pkxd: "Baixar PK XD", promo_title: "Códigos Promo", btn_redeem: "Resgatar", leaderboard: "Ranking ao Vivo", loading_db: "Conectando... 🔄", post_placeholder: "No que está pensando?", post_example: "A atualização Zero Gravity será lendária! 🔥🚀", btn_comment: "Comentar", btn_share: "Compartilhar", login_title: "Entrar / Registrar", captcha: "Sou humano", btn_login: "Entrar", switch_acc: "Mudar Conta", btn_logout: "Sair", lang_title: "Idioma", lang_note: "* Tradução automática.", bg_title: "Fundo", music_title: "Música", upload_music: "Importar música", tab_home: "Início", tab_links: "Links", tab_leader: "Ranking", tab_social: "Social", tab_auth: "Conta", tab_settings: "Ajustes", alert_post: "Criando post...", alert_comment: "Comentários abertos!", alert_share: "Link copiado!" }
+        // ----------------- 1. جلب فيديو يوتيوب تلقائياً -----------------
+        // ⚠️ مهم: لازم تحط الـ Channel ID الحقيقي مالتك بمكان YOUR_CHANNEL_ID (يبدأ بحرف UC)
+        const channelId = "YOUR_CHANNEL_ID"; 
+        const rssUrl = `https://api.rss2json.com/v1/api.json?rss_url=https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
+        
+        fetch(rssUrl)
+            .then(res => res.json())
+            .then(data => {
+                if(data.items && data.items.length > 0) {
+                    // يأخذ أول فيديو (أحدث واحد)
+                    const latestVideoUrl = data.items[0].link;
+                    const videoId = latestVideoUrl.split('v=')[1];
+                    document.getElementById('latest-video-container').innerHTML = `
+                        <iframe src="https://www.youtube.com/embed/${videoId}" allowfullscreen></iframe>
+                        <p style="text-align:center; font-weight:bold; margin-top:10px;">${data.items[0].title}</p>
+                    `;
+                } else {
+                    document.getElementById('latest-video-container').innerHTML = `<p style="color:yellow;">حط الـ Channel ID مالتك بالكود حتى يظهر الفيديو!</p>`;
+                }
+            })
+            .catch(err => console.log("Youtube Fetch Error", err));
+
+        // ----------------- 2. نظام أكواد الهدايا المتعدد -----------------
+        const validCodes = {
+            "SOPHIE2026": "🎉 مبروك! حصلت على باقة زيرو جرافيتي!",
+            "TEAMFLAME": "🔥 مبروك! حصلت على رتبة تيم فليم!",
+            "MODY": "💎 مبروك! حصلت على 500 كوينز!"
         };
 
-        let currentLang = localStorage.getItem('sophie_lang') || 'en';
-        function setLanguage(lang) {
-            const targetDict = dict[lang] || dict['en'];
-            currentLang = lang;
-            localStorage.setItem('sophie_lang', lang);
-            document.getElementById('lang-select').value = lang;
-            document.getElementById('app-root').dir = (lang === 'ar') ? 'rtl' : 'ltr';
+        function checkPromoCode() {
+            const input = document.getElementById('promo-code').value.toUpperCase().trim();
+            const resultMsg = document.getElementById('promo-result');
             
-            document.querySelectorAll('[data-trans]').forEach(el => {
-                const key = el.getAttribute('data-trans');
-                if(targetDict[key]) el.innerText = targetDict[key];
+            if (validCodes[input]) {
+                resultMsg.style.color = "var(--ios-green)";
+                resultMsg.innerText = validCodes[input];
+            } else {
+                resultMsg.style.color = "red";
+                resultMsg.innerText = "❌ الكود غير صحيح أو منتهي الصلاحية!";
+            }
+        }
+
+        // ----------------- 3. إعدادات الخلفيات والموسيقى -----------------
+        const staticColors = ['#1a1a2e', '#16213e', '#0f3460', '#e94560', '#533483', '#2c003e', '#000000', '#112233', '#330000', '#002200'];
+        const gifUrls = [
+            'https://media.giphy.com/media/xT9IgzoKnwFNmISR8I/giphy.gif', // فضاء
+            'https://media.giphy.com/media/26n7b7PjSOZJwVCmY/giphy.gif', // نجوم
+            'https://media.giphy.com/media/3o7aD2d7qc9qS3260c/giphy.gif', // سايبر
+            'https://media.giphy.com/media/l41YcGT5ShJa0vcCk/giphy.gif', // تكنولوجيا
+            'https://media.giphy.com/media/xT0xezQGU5x3CEbRu8/giphy.gif'  // أضواء
+        ];
+
+        // توليد أزرار الخلفيات الثابتة
+        const staticGrid = document.getElementById('static-bgs');
+        staticColors.forEach(color => {
+            const div = document.createElement('div');
+            div.className = 'bg-item';
+            div.style.background = color;
+            div.onclick = () => { document.body.style.backgroundImage = 'none'; document.body.style.backgroundColor = color; };
+            staticGrid.appendChild(div);
+        });
+
+        // توليد أزرار الخلفيات المتحركة
+        const gifGrid = document.getElementById('gif-bgs');
+        gifUrls.forEach(url => {
+            const div = document.createElement('div');
+            div.className = 'bg-item';
+            div.style.backgroundImage = `url(${url})`;
+            div.onclick = () => { document.body.style.backgroundImage = `url(${url})`; };
+            gifGrid.appendChild(div);
+        });
+
+        // استيراد خلفية وموسيقى
+        function importBg(e) {
+            if(e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(event) { document.body.style.backgroundImage = `url(${event.target.result})`; }
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        }
+
+        const audioPlayer = document.getElementById('bg-audio');
+        function changeMusic() {
+            const selected = document.getElementById('music-select').value;
+            if(selected) { audioPlayer.src = selected; audioPlayer.play(); } 
+            else { audioPlayer.pause(); }
+        }
+        function importMusic(e) {
+            if(e.target.files[0]) {
+                audioPlayer.src = URL.createObjectURL(e.target.files[0]);
+                audioPlayer.play();
+            }
+        }
+
+        // ----------------- 4. تسجيل الدخول و ريكابتشا -----------------
+        function verifyLogin() {
+            // التحقق من أن المستخدم داس على مربع "أنا لست روبوت"
+            const recaptchaResponse = grecaptcha.getResponse();
+            const username = document.getElementById('username').value.trim();
+            
+            if(username === "") return alert("اكتب اسمك أولاً!");
+            
+            // إذا كنت ما حاط Site Key الحقيقي، الـ response راح يرجع فارغ، لذلك ضفت هذا التنبيه
+            if(recaptchaResponse.length === 0) {
+                alert("الرجاء إكمال اختبار الكابتشا (أنا لست روبوت) أو تأكد من إضافة الـ Site Key الحقيقي بالكود.");
+            } else {
+                alert("تم تسجيل الدخول بنجاح يا " + username + "!");
+                document.getElementById('login-section').style.display = 'none';
+                localStorage.setItem('sophie_currentUser', username);
+            }
+        }
+
+        // ----------------- 5. التفاعلات الوهمية (حتى تربط الفايربيس) -----------------
+        let localPosts = [];
+        function addPost() {
+            const text = document.getElementById('post-text').value;
+            const user = localStorage.getItem('sophie_currentUser') || "مجهول";
+            if(text) {
+                localPosts.unshift({ user: user, text: text, likes: 0 });
+                document.getElementById('post-text').value = '';
+                renderLocalPosts();
+            }
+        }
+        function likePost(index) {
+            localPosts[index].likes++;
+            renderLocalPosts();
+        }
+        function renderLocalPosts() {
+            const feed = document.getElementById('posts-feed');
+            feed.innerHTML = '';
+            localPosts.forEach((post, index) => {
+                feed.innerHTML += `
+                    <div style="background: rgba(0,0,0,0.4); padding: 10px; border-radius: 10px; margin-bottom: 10px;">
+                        <strong style="color: var(--ios-blue);"><i class="fa-solid fa-user"></i> ${post.user}</strong>
+                        <p style="margin: 8px 0;">${post.text}</p>
+                        <button class="btn" style="width: auto; padding: 5px 15px; background: transparent; border: 1px solid var(--ios-border);" onclick="likePost(${index})">
+                            <i class="fa-solid fa-heart" style="color: red;"></i> ${post.likes}
+                        </button>
+                    </div>
+                `;
             });
         }
-        
-        function switchTab(viewId, element = null) {
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            document.getElementById('view-' + viewId).classList.add('active');
-            if(element) {
-                document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
-                element.classList.add('active');
-            }
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        // التوقيت: 11 يونيو 2026 الساعة 10 الصبح بتوقيت البرازيل (13:00 UTC)
-        const targetDate = new Date(Date.UTC(2026, 5, 11, 13, 0, 0)).getTime(); 
-        setInterval(() => {
-            const diff = targetDate - new Date().getTime();
-            if (diff > 0) {
-                document.getElementById("t-mo").innerText = Math.floor(diff / (1000 * 60 * 60 * 24 * 30)).toString().padStart(2, '0');
-                document.getElementById("t-dy").innerText = Math.floor((diff % (1000 * 60 * 60 * 24 * 30)) / (1000 * 60 * 60 * 24)).toString().padStart(2, '0');
-                document.getElementById("t-hr").innerText = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, '0');
-                document.getElementById("t-mn").innerText = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
-                document.getElementById("t-sc").innerText = Math.floor((diff % (1000 * 60)) / 1000).toString().padStart(2, '0');
-            }
-        }, 1000);
-
-        function changeBg(value) {
-            document.documentElement.style.setProperty('--bg-image', value.includes('gradient') || value.includes('url') ? value : 'none');
-            document.documentElement.style.setProperty('--ios-bg', value.includes('gradient') || value.includes('url') ? 'transparent' : value);
-            localStorage.setItem('sophie_bg', value);
-        }
-        function uploadCustomBg(event) {
-            const file = event.target.files[0];
-            if(file) {
-                const reader = new FileReader();
-                reader.onload = e => changeBg(`url('${e.target.result}')`);
-                reader.readAsDataURL(file);
-            }
-        }
-
-        const audio = document.getElementById('bg-audio');
-        const playBtn = document.getElementById('play-btn');
-        function toggleMusic() {
-            if(audio.paused) { audio.play(); playBtn.classList.replace('fa-play', 'fa-pause'); } 
-            else { audio.pause(); playBtn.classList.replace('fa-pause', 'fa-play'); }
-        }
-        function loadCustomMusic(event) {
-            const file = event.target.files[0];
-            if(file) {
-                audio.src = URL.createObjectURL(file);
-                document.getElementById('track-name').innerText = file.name;
-                audio.play(); playBtn.classList.replace('fa-play', 'fa-pause');
-            }
-        }
-
-        function interactBtn(el, type) {
-            if(type === 'like') { el.style.color = 'var(--ios-pink)'; el.innerHTML = '<i class="fa-solid fa-heart"></i> Liked'; }
-            else if(type === 'comment') { alert(dict[currentLang].alert_comment); }
-            else if(type === 'share') { alert(dict[currentLang].alert_share); }
-        }
-
-        // نظام 2FA الدقيق
-        let isHuman = false;
-        function toggleCaptcha() {
-            isHuman = !isHuman;
-            const cb = document.getElementById('captcha-check');
-            if(isHuman) { cb.classList.add('checked'); document.getElementById('auth-2fa').style.display = 'block'; }
-            else { cb.classList.remove('checked'); document.getElementById('auth-2fa').style.display = 'none'; }
-        }
-
-        let currentUser = JSON.parse(localStorage.getItem('sophie_user')) || null;
-        function updateAuthUI() {
-            if(currentUser) {
-                document.getElementById('login-box').style.display = 'none';
-                document.getElementById('profile-box').style.display = 'block';
-                document.getElementById('profile-name').innerText = currentUser.name;
-                document.getElementById('nav-username').innerText = currentUser.name;
-            } else {
-                document.getElementById('login-box').style.display = 'block';
-                document.getElementById('profile-box').style.display = 'none';
-                document.getElementById('nav-username').innerText = dict[currentLang].login_nav;
-            }
-        }
-        
-        function loginUser() {
-            if(!isHuman) return alert("الرجاء إثبات أنك إنسان!");
-            const tfaCode = document.getElementById('auth-2fa').value;
-            if(tfaCode !== "123456") return alert("كود 2FA خاطئ! الكود الصحيح هو 123456"); // تحقق حقيقي مبسط
-            
-            const email = document.getElementById('auth-email').value;
-            if(!email) return alert("يرجى إدخال البريد!");
-            
-            const name = email.split('@')[0];
-            currentUser = { name: name, email: email, points: 0, used: [] };
-            localStorage.setItem('sophie_user', JSON.stringify(currentUser));
-            updateAuthUI();
-            confetti();
-        }
-
-        function switchAccount() {
-            logoutUser();
-            setTimeout(() => { alert("جاهز لتسجيل الدخول بحساب آخر!"); }, 300);
-        }
-
-        function logoutUser() {
-            localStorage.removeItem('sophie_user'); currentUser = null; updateAuthUI();
-        }
-
-        window.onload = () => {
-            setLanguage(currentLang);
-            if(localStorage.getItem('sophie_bg')) changeBg(localStorage.getItem('sophie_bg'));
-            updateAuthUI();
-        };
     </script>
 </body>
 </html>
